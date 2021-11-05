@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "tutorial-luizalabs-pybr2021"
+version = "0.1.0"
+description = "Tutorial \"Construindo API's robustas utilizando Python\""
+authors = ["Diogo Alves <diogo.alves.ti@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.7"
+fastapi = "^0.70.0"
+httpx = "^0.20.0"
+uvicorn = "^0.15.0"
+
+[tool.poetry.dev-dependencies]
+httpie = "^2.6.0"
+pytest = "^6.2.5"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

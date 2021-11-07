@@ -10,16 +10,20 @@ from .schemas import Item
 
 config = Config('.env')
 
-API_KEY = config('MAGALU_API_KEY')
-MAGALU_API_URL = config('MAGALU_API_URL')
-TENANT_ID = config('MAGALU_TENANT_ID')
-MAESTRO_SERVICE_URL = config('MAESTRO_SERVICE_URL')
+API_KEY = config('MAGALU_API_KEY', default='FAKE-API-KEY')
+MAGALU_API_URL = config('MAGALU_API_URL', default='localhost:8080')
+TENANT_ID = config('MAGALU_TENANT_ID', default=1)
+MAESTRO_SERVICE_URL = config(
+    'MAESTRO_SERVICE_URL', default=f'{MAGALU_API_URL}/maestro/v1'
+)
 
 
-def _get_order_items_by_package(order_id: UUID, package_id: UUID) -> list[Item]:
+def _get_order_items_by_package(
+    order_id: UUID, package_id: UUID
+) -> list[Item]:
     response = httpx.get(
         f'{MAESTRO_SERVICE_URL}/orders/{order_id}/packages/{package_id}/items',
-        headers={'X-Api-Key': API_KEY, 'X-Tenant-Id': TENANT_ID}
+        headers={'X-Api-Key': API_KEY, 'X-Tenant-Id': TENANT_ID},
     )
     response.raise_for_status()
     return [
@@ -38,14 +42,16 @@ def get_order_items(order_id: UUID) -> list[Item]:
     try:
         response = httpx.get(
             f'{MAESTRO_SERVICE_URL}/orders/{order_id}',
-            headers={'X-Api-Key': API_KEY, 'X-Tenant-Id': TENANT_ID}
+            headers={'X-Api-Key': API_KEY, 'X-Tenant-Id': TENANT_ID},
         )
         response.raise_for_status()
         packages = response.json()['packages']
-        return list(chain.from_iterable(
-            _get_order_items_by_package(order_id, package['uuid'])
-            for package in packages
-        ))
+        return list(
+            chain.from_iterable(
+                _get_order_items_by_package(order_id, package['uuid'])
+                for package in packages
+            )
+        )
     except httpx.HTTPStatusError as exc:
         if exc.response.status_code == HTTPStatus.NOT_FOUND:
             raise OrderNotFoundError() from exc

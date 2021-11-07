@@ -21,13 +21,14 @@ def override_get_order_items():
             if isinstance(items_or_error, Exception):
                 raise items_or_error
             return items_or_error
+
         app.dependency_overrides[get_order_items] = mock_get_order_items
+
     yield _override_get_order_items
     app.dependency_overrides.clear()
 
 
 class TestHealthCheck:
-
     def test_should_return_status_code_200(self, client):
         response = client.get("/healthcheck")
         assert response.status_code == HTTPStatus.OK
@@ -42,7 +43,6 @@ class TestHealthCheck:
 
 
 class TestListOrderItems:
-
     def test_when_order_id_type_is_invalid_should_return_an_error(
         self, client
     ):
@@ -75,15 +75,15 @@ class TestListOrderItems:
                 description='Item 1',
                 image_url='http://url.com/img1',
                 reference='ref1',
-                quantity=1
+                quantity=1,
             ),
             Item(
                 sku='2',
                 description='Item 2',
                 image_url='http://url.com/img2',
                 reference='ref2',
-                quantity=2
-            )
+                quantity=2,
+            ),
         ]
         override_get_order_items(items)
         order_id = '7e290683-d67b-4f96-a940-44bef1f69d21'
